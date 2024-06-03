@@ -1,4 +1,4 @@
-from log_parser import read_game_kills, report
+from app.models.log_parser import read_game_kills, report
 import json
 
 def test_read_game_kills():

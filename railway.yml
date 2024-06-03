@@ -1,0 +1,7 @@
+# railway.yml
+services:
+  - name: quake-log-parser
+    envVars:
+      FLASK_ENV: production
+    deploy:
+      startCommand: "python run.py"

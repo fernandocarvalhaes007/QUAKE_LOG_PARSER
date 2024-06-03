@@ -1,11 +1,12 @@
-from flask import Flask, request, jsonify
-from log_parser import read_game_kills_from_file, report
+from flask import Blueprint, jsonify, request, current_app
+from ..models.log_parser import read_game_kills_from_file, report
 import logging
-import os
 
-app = Flask(__name__)
+app = Blueprint('default', __name__)
 
-logging.basicConfig(level=logging.INFO)
+# Create a logger for the Blueprint
+logger = logging.getLogger('quake_log_parser')
+logger.setLevel(logging.INFO)
 
 @app.route('/games', methods=['POST'])
 def parse_log():
@@ -14,13 +15,11 @@ def parse_log():
         if not request.is_json:
             raise ValueError(f"Request content-type must be application/json, got {request.content_type} instead")
 
-        file_path = request.json.get('file_path', 'games.log')
+        # Use the configured log file path
+        file_path = current_app.config.get('LOG_FILE_PATH', 'app/data/games.log')
         read_game = read_game_kills_from_file(file_path)
         game_reports = report(read_game)
         return game_reports, 200, {'Content-Type': 'application/json'}
     except Exception as e:
-        app.logger.error(f"Error parsing log: {e}")
+        logger.error(f"Error parsing log: {e}")
         return jsonify({'error': str(e)}), 500
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
