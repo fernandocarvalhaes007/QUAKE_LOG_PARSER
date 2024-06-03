@@ -28,7 +28,8 @@ def test_parse_log_success(client, mocker):
         }
     })
 
-    response = client.post('/games', json={'file_path': 'games.log'})
+    headers = {'Content-Type': 'application/json'}
+    response = client.post('/games', data=json.dumps({'file_path': 'games.log'}), headers=headers)
     assert response.status_code == 200
     assert response.content_type == 'application/json'
     expected_data = {
@@ -44,7 +45,8 @@ def test_parse_log_failure(client, mocker):
     mock_read_game_kills_from_file = mocker.patch('app.read_game_kills_from_file')
     mock_read_game_kills_from_file.side_effect = Exception('Failed to read log file')
 
-    response = client.post('/games', json={'file_path': 'games.log'})
+    headers = {'Content-Type': 'application/json'}
+    response = client.post('/games', data=json.dumps({'file_path': 'games.log'}), headers=headers)
     assert response.status_code == 500
     assert response.content_type == 'application/json'
     expected_data = {'error': 'Failed to read log file'}

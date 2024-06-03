@@ -10,6 +10,10 @@ logging.basicConfig(level=logging.INFO)
 @app.route('/games', methods=['POST'])
 def parse_log():
     try:
+        # Check if the request is JSON
+        if not request.is_json:
+            raise ValueError(f"Request content-type must be application/json, got {request.content_type} instead")
+
         file_path = request.json.get('file_path', 'games.log')
         read_game = read_game_kills_from_file(file_path)
         game_reports = report(read_game)
